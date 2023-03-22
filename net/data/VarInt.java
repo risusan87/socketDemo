@@ -1,4 +1,4 @@
-package data;
+package net.data;
 
 /**
  * Variable length signed 32 bit integer

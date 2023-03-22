@@ -1,4 +1,4 @@
-package packet;
+package net.packet;
 
 public class P0Handshake extends PacketBase {
 

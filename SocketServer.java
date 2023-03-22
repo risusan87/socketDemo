@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
-import javax.xml.bind.DatatypeConverter;
 
 public class SocketServer {
 

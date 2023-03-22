@@ -1,4 +1,4 @@
-package packet;
+package net.packet;
 
 /**
  * Base of packets in both bounds.

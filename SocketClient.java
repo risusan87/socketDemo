@@ -1,14 +1,7 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
-import java.nio.channels.SocketChannel;
-import java.util.Scanner;
+import net.NetworkManager;
 
 public class SocketClient {
     public static void main(String[] args) throws UnknownHostException, IOException {
