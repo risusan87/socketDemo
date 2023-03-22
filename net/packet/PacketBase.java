@@ -6,7 +6,9 @@ package packet;
  */
 public abstract class PacketBase {
 
+    protected int packetState = 0;
     public abstract byte getPacketID();
     
+
 
 }
