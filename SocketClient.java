@@ -1,15 +1,19 @@
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import net.NetworkManager;
 
 public class SocketClient {
-    public static void main(String[] args) throws UnknownHostException, IOException {
+    public static void main(String[] args) throws Exception {
         
         System.out.println("Connectiong...");
-        NetworkManager net = NetworkManager.startSocketClient("174.114.126.229", 1234, 5000);
-        if (net == null)
-            return;
+        Socket client = new Socket("localhost", 1234);
+        BufferedOutputStream bos = new BufferedOutputStream(client.getOutputStream());
+        for (char c : "hello".toCharArray())
+            bos.write(c);
+        bos.flush();
+        client.close();
         
     }
 

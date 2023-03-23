@@ -3,16 +3,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
 
+import net.NetworkManager;
+
 public class SocketServer {
 
     public static void main(String[] args) throws IOException {
 
-        ServerSocket server = new ServerSocket(1234);
-        System.out.println("Waiting connection");
-        Socket clientConnection = server.accept();
-        System.out.println("Connected");
-        clientConnection.close();
-        server.close();
+        NetworkManager.ServerConnection server = NetworkManager.startSocketServer(1234);
         
     }
 

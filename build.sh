@@ -2,9 +2,9 @@
 
 src_dir=./
 bin_dir=./bin
-main_class=SocketClient
-main_java=SocketClient.java
-jar_file=SocketClient.jar
+main_class=SocketServer
+main_java=SocketServer.java
+jar_file=exc.jar
 doc_dir=./doc
 
 
