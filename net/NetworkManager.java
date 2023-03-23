@@ -1,61 +1,119 @@
 package net;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
-public class NetworkManager {
+import net.packet.PacketBase;
 
-    public final boolean isServer;
-    private ServerSocket server;
-    private Socket client;
+public abstract class NetworkManager {
 
-    private NetworkManager(ServerSocket server) {
-        this.server = server;
-        this.isServer = true;
-        this.client = null;
+    protected final Socket socketConnection;
+    
+
+    private NetworkManager(Socket connection) {
+        this.socketConnection = connection;
     }
 
-    private NetworkManager(Socket client) {
-        this.client = client;
-        this.server = null;
-        this.isServer = false;
+    protected abstract void onPacketReceived(PacketBase incomingPacket);
+
+    /**
+     * Exception thrown when there was unexpected packet within connections.
+     */
+    public static class PacketMalformedException extends Exception {
+        public PacketMalformedException(String msg) {
+            super(msg);
+        }
+        public PacketMalformedException() {
+            super();
+        }
     }
 
     /**
+     * Enhenced implementation of ServerSocket class for this protocol.
      * 
-     * @param port
-     * @return
-     * @see ServerSocket
-     * @throws IOException  When I/O error occured
-     * @throws IllegalArgumentException  if the port is not in between 0 - 65535
+     * @author RK
      */
-    public static NetworkManager startSocketServer(int port) throws IOException {
-        ServerSocket server = new ServerSocket(port);
-        return new NetworkManager(server);
+    public static class ServerConnection extends ServerSocket {
+
+        private final ThreadPoolExecutor executor;
+
+        private ServerConnection(int port, int maxClient) throws IOException {
+
+            super(port);
+            this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(maxClient);
+
+            Thread entrance = new Thread(() -> {
+                boolean close = false;
+                while (!close) {
+                    try {   
+                        this.acceptClientConnection();
+                    } catch (IOException e) {
+                        close = true;
+                    }
+                }
+            });
+            entrance.start();
+
+        }
+
+        public void acceptClientConnection() throws IOException {
+            final NetworkManager clientBoundConnection = new NetworkManager(this.accept()) {
+                @Override
+                protected void onPacketReceived(PacketBase incomingPacket) {
+
+                }
+            };
+            System.out.println("current clients: " + executor.getPoolSize());
+            ServerConnection.this.executor.submit(() -> {
+                try (
+                    BufferedInputStream bis = new BufferedInputStream(
+                        clientBoundConnection.socketConnection.getInputStream());
+                    BufferedOutputStream bos = new BufferedOutputStream(
+                        clientBoundConnection.socketConnection.getOutputStream());
+                ) {
+                    while (!ServerConnection.this.isClosed()) {
+                        if (bis.available() != 0) {
+                            byte[] readData = new byte[bis.available()];
+                            bis.read(readData);
+                            for (byte b : readData)
+                                System.out.println(b);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        public void setClosed() {
+
+        }
+
+        public void setClosedAndWait() {
+
+        }
+
     }
 
     /**
+     * Starts a socket server via TCP connection hosted on this physical machine.
+     * This method may return null on failure.
      * 
-     * @param ipv4
      * @param port
-     * @return
-     * @throws IOException
-     * @throws UnknownHostException
+     * @return NetworkManager prepared for this protocol, or null if it fails to listen on the port by any chance.
      */
-    public static NetworkManager startSocketClient(String ipv4, int port, int timeoutMillis) throws UnknownHostException, IOException {
-        Socket client = new Socket();
+    public static ServerConnection startSocketServer(int port) {
         try {
-            client.connect(new InetSocketAddress(ipv4, port), timeoutMillis);
-        } catch (SocketTimeoutException e) {
-            System.out.println("Connection timeout.");
-            client.close();
+            return new ServerConnection(port, 5);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
-        return new NetworkManager(client);
     }
 
 }
