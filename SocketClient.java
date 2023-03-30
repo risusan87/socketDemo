@@ -7,13 +7,7 @@ import net.NetworkManager;
 public class SocketClient {
     public static void main(String[] args) throws Exception {
         
-        System.out.println("Connectiong...");
-        Socket client = new Socket("localhost", 1234);
-        BufferedOutputStream bos = new BufferedOutputStream(client.getOutputStream());
-        for (char c : "hello".toCharArray())
-            bos.write(c);
-        bos.flush();
-        client.close();
+        NetworkManager.openServerBoundConnection("localhost", 1234);
         
     }
 

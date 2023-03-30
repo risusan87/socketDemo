@@ -9,16 +9,8 @@ public class SocketServer {
 
     public static void main(String[] args) throws IOException {
 
-        NetworkManager.ServerConnection server = NetworkManager.startSocketServer(1234);
+        NetworkManager.Server server = NetworkManager.startSocketServer(1234);
         
-    }
-
-    
-    private static byte[] genSharedSecret(int size) {
-        SecureRandom random = new SecureRandom();
-        byte[] secret = new byte[size];
-        random.nextBytes(secret);
-        return secret;
     }
 
 }
